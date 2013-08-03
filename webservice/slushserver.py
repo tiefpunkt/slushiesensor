@@ -18,8 +18,7 @@ def arduinoReceive():
 		if ";" in line:
 			temperature_temp = line.rstrip().split(";")
 			try:
-				map(float, temperature_temp)
-				temperature = temperature_temp
+				temperature = map(float, temperature_temp)
 			except ValueError:
 				pass
 
