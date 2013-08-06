@@ -1,0 +1,26 @@
+<html>
+<head>
+	<title>RaumZeitLabor Slush Machine</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<script src="/static/jquery-1.10.2.min.js"></script>
+	<script>
+		$(document).ready(function() {
+			$.getJSON('/api', function(data) {
+				var items = [];
+				$.each(data.temperature, function(index, value) {
+					items.push('<li>Chamber ' + (index+1) + ": " + value + "°C</li>");
+				});
+				$('#chambers').html(items.join(''));
+			});
+		});
+	</script>
+</head>
+<body>
+	<h1>RaumZeitLabor Slush Machine</h1>
+		Come grab some slush at the ICMP village!
+		
+	<h2>Temperatures</h2>
+		<ul id="chambers">
+		</ul>
+</body>
+</html>

@@ -6,6 +6,7 @@ import serial
 import io
 import threading
 import simplejson as json
+import os
 
 temperature = [ 0,0,0 ]
 
@@ -23,34 +24,28 @@ def arduinoReceive():
 				pass
 
 class SlushServer(object):
-	
-	@cherrypy.expose
-	def index(self):
-		return '''
-<html>
-<head>
-<title>RaumZeitLabor Slush Machine</title>
-</head>
-<body>
-<h1>RaumZeitLabor Slush Machine</h1>
-Come grab some slush at the ICMP village!
-<h2>Temperatures</h2>
-<ul>
-<li>Chamber 1: ''' + str(temperature[0]) + '''°C</li>
-<li>Chamber 2: ''' + str(temperature[1]) + '''°C</li>
-<li>Chamber 3: ''' + str(temperature[2]) + '''°C</li>
-</ul>
-</body>
-</html
-'''
-	
+
 	@cherrypy.expose
 	def api(self):
+		cherrypy.response.headers['Content-Type']= 'application/json'	
 		return json.dumps({"temperature": temperature})
 
 _thread = threading.Thread(target=arduinoReceive)
 _thread.setDaemon(True)
 _thread.start()
 
-cherrypy.server.socket_host = "0.0.0.0";
-cherrypy.quickstart(SlushServer())
+current_dir = os.path.dirname(os.path.abspath(__file__)) 
+
+conf = {'global': {'server.socket_host': '0.0.0.0',
+				'server.socket_port': 8080,
+				'tools.encode.on': True,
+				'tools.encode.encoding': "utf-8" },
+		'/index': {	'tools.staticfile.on': True,
+					'tools.staticfile.filename': os.path.join(current_dir, 'index.html')},
+		'/static': {'tools.staticdir.on': True,
+					'tools.staticdir.dir': os.path.join(current_dir, 'static'),
+					'tools.staticdir.content_types': {'js': 'text/javascript',
+														'css': 'text/css'}}}
+
+#cherrypy.server.socket_host = "0.0.0.0";
+cherrypy.quickstart(SlushServer(), config = conf )
